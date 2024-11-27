@@ -1,0 +1,24 @@
+name: Auto PR from dev to staging
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  create-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Create Pull Request from dev to staging
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Automated PR from dev to staging"
+          branch: dev
+          base: staging
+          title: "Sync dev with staging"
+          body: "Automated pull request to merge dev into staging"

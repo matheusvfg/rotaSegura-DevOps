@@ -13,12 +13,38 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Configure Git user
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Check remote URL
+        run: git remote -v
+
+      - name: Check out the dev branch
+        run: git checkout dev
+
+      - name: Create a new branch from dev
+        run: git checkout -b "dev-to-staging-${{ github.run_id }}"
+
+      - name: Make a commit in the new branch
+        run: |
+          echo "Automated PR commit" > commit-message.txt
+          git add commit-message.txt
+          git commit -m "Automated commit for PR creation"
+
+      - name: Push new branch
+        run: git push origin "dev-to-staging-${{ github.run_id }}"
+
       - name: Create Pull Request from dev to staging
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "Automated PR from dev to staging"
-          branch: dev
+          branch: "dev-to-staging-${{ github.run_id }}"
           base: staging
           title: "Sync dev with staging"
           body: "Automated pull request to merge dev into staging"
+        
+      - name: List open pull requests
+        run: gh pr list --state open

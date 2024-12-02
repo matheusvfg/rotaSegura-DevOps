@@ -1,23 +1,23 @@
-name: Test and Merge from staging to main
+name: Merge staging to main
 
 on:
-  pull_request:
+  push:
     branches:
       - staging
 
 jobs:
-  test-and-merge:
+  auto-merge:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Merge staging to main if tests pass
-        if: ${{ success() }}
+      - name: Merge staging to main
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git checkout main
-          git merge staging
+          git merge staging --no-edit
           git push origin main
+        

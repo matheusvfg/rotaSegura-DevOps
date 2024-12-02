@@ -3,7 +3,6 @@ import { FiTrash } from "react-icons/fi";
 import { BrowserRouter } from "react-router-dom";
 import { api } from "../services/api";
 import Header from "./Header";
-import axios from "axios";
 
 interface DenunciasProps {
   id: string;
@@ -15,16 +14,11 @@ interface DenunciasProps {
   ativa: boolean;
 }
 
-interface Suggestion {
-  text: string;
-}
-
 export const Home = () => {
   const [denuncias, setDenuncias] = useState<DenunciasProps[]>([]);
   const tituloRef = useRef<HTMLInputElement | null>(null);
   const descRef = useRef<HTMLInputElement | null>(null);
   const [inputValue, setInputValue] = useState<string>("");
-  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
 
   useEffect(() => {
     carregarDenuncias();
@@ -43,7 +37,6 @@ export const Home = () => {
       !descRef.current?.value ||
       !inputValue
     ) {
-      console.log("Esta faltando algum elemento");
       return;
     }
 
@@ -52,13 +45,12 @@ export const Home = () => {
       descricao: descRef.current?.value,
       local: inputValue
     });
-    console.log(inputValue)
 
     setDenuncias((listaDenuncias) => [...listaDenuncias, response.data]);
 
     tituloRef.current.value = "";
     descRef.current.value = "";
-    setInputValue(""); 
+    setInputValue("");
   }
 
   async function handleDelete(id: string) {
@@ -72,52 +64,8 @@ export const Home = () => {
       const listaDenuncias = denuncias.filter((denuncia) => denuncia.id !== id);
       setDenuncias(listaDenuncias);
     } catch (err) {
-      console.log(err);
     }
   }
-
-  const app = axios;
-  const body = {
-    input: inputValue.toString(),
-  };
-  const headers = {
-    "X-Goog-Api-Key": "AIzaSyCLcwHTpc-ANeWqPy3eOZjWH9zsDynlLbQ",
-    "Content-Type": "application/json",
-  };
-
-  useEffect(() => {
-    const funtionCallApiSuggestion = async () => {
-      try {
-        const response = await app.post(
-          "https://places.googleapis.com/v1/places:autocomplete",
-          body,
-          { headers }
-        );
-        const suggestionsFromApi: Suggestion[] = response.data.suggestions.map(
-          (suggestion: any) => suggestion.placePrediction.text
-        );
-        setSuggestions(suggestionsFromApi);
-      } catch (error) {
-        console.error("Erro ao buscar sugestões:", error);
-      }
-    };
-    // Verifica se há texto no input antes de fazer a chamada à API
-    if (inputValue.trim() !== "") {
-      funtionCallApiSuggestion();
-    } else {
-      setSuggestions([]); // Limpa as sugestões se o campo estiver vazio
-    }
-  }, [inputValue]);
-  console.log("SUGGESTAO", suggestions);
-
-  const handleSuggestionClick = (suggestion: string) => {
-    setInputValue(suggestion);
-    setSuggestions([]); 
-  };
-
-  const handleBlur = () => {
-    setSuggestions([]);
-  };
 
   return (
     <div className="w-full min-h-screen bg-gray-900 flex justify-center px-4">
@@ -148,25 +96,11 @@ export const Home = () => {
           <label className="font-medium text-white"> Local</label>
           <input
             type="text"
-            id="search-input"
             placeholder="Digite o endereço do local reportado"
             className="w-full mb-5 p-2 rounded"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            onBlur={handleBlur}
-            
           />
-          <ul className="bg-gray-100 text-gray-800">
-            {suggestions.map((suggestion, index) => (
-              <li
-                key={index}
-                onMouseDown={() => handleSuggestionClick(suggestion.text)} // Usar onMouseDown para selecionar sugestão antes do blur
-                className="p-2 border-b border-gray-300 hover:bg-gray-200 cursor-pointer"
-              >
-                {suggestion.text}
-              </li>
-            ))}
-          </ul>
 
           <input
             type="submit"

@@ -1,0 +1,20 @@
+# Use uma imagem base para Node.js
+FROM node:18
+
+# Defina o diretório de trabalho dentro do contêiner
+WORKDIR /app
+
+# Copie apenas os arquivos de dependências
+COPY package*.json ./
+
+# Instale as dependências
+RUN npm install
+
+# Copie o restante dos arquivos
+COPY . .
+
+# Exponha a porta padrão usada pelo frontend
+EXPOSE 5173
+
+# Comando para iniciar o servidor em modo de desenvolvimento
+CMD ["npm", "run", "dev"]
